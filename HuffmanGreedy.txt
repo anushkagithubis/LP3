@@ -1,0 +1,113 @@
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
+#include <queue>
+#include <iomanip>
+
+using namespace std;
+
+struct Node {
+    char ch;
+    int freq;
+    Node *left, *right;
+    Node(char c, int f) : ch(c), freq(f), left(nullptr), right(nullptr) {}
+    Node(Node* l, Node* r) : ch('\0'), freq(l->freq + r->freq), left(l), right(r) {}
+};
+
+struct Compare {
+    bool operator()(Node* l, Node* r) {
+        return l->freq > r->freq;
+    }
+};
+
+void buildCodes(Node* root, string str, map<char, string> &huffmanCode) {
+    if (!root) return;
+    if (!root->left && !root->right) {
+        huffmanCode[root->ch] = str;
+    }
+    buildCodes(root->left, str + "0", huffmanCode);
+    buildCodes(root->right, str + "1", huffmanCode);
+}
+
+void freeTree(Node* root) {
+    if (!root) return;
+    freeTree(root->left);
+    freeTree(root->right);
+    delete root;
+}
+
+int main() {
+    string input;
+    cout << "Enter a string: ";
+    getline(cin, input);
+
+   
+    map<char, int> freq;
+    for (char ch : input) {
+        if (ch != ' ') {
+            freq[ch]++;
+        }
+    }
+    cout << "\nCharacter frequencies (excluding spaces):\n";
+    for (auto &p : freq) {
+        cout << p.first << " : " << p.second << " times\n";
+    }
+
+    
+    priority_queue<Node*, vector<Node*>, Compare> pq;
+    for (auto &p : freq) {
+        pq.push(new Node(p.first, p.second));
+    }
+
+    while (pq.size() > 1) {
+        Node* left = pq.top(); pq.pop();
+        Node* right = pq.top(); pq.pop();
+        Node* merged = new Node(left, right);
+        pq.push(merged);
+    }
+    Node* root = pq.top();
+
+    
+    map<char, string> huffmanCode;
+    buildCodes(root, "", huffmanCode);
+
+    cout << "\nHuffman Codes:\n";
+    for (auto &p : huffmanCode) {
+        cout << p.first << " : " << p.second << "\n";
+    }
+
+    
+    string encodedStr = "";
+    for (char ch : input) {
+        if (ch != ' ') {
+            encodedStr += huffmanCode[ch];
+        }
+    }
+
+    
+    cout << "\nEncoded string (grouped 8 bits):\n";
+    for (size_t i = 0; i < encodedStr.length(); i++) {
+        cout << encodedStr[i];
+        if ((i + 1) % 8 == 0) cout << " ";
+    }
+    if (encodedStr.length() % 8 != 0) cout << "\n";
+   
+    cout << "\nDecoded string (no spaces):\n";
+    string decodedStr = "";
+    Node* curr = root;
+   
+
+ for (char bit : encodedStr) {
+        curr = (bit == '0') ? curr->left : curr->right;
+        if (!curr->left && !curr->right) {
+            decodedStr += curr->ch;
+            curr = root;
+        }
+    }
+
+    cout << decodedStr << "\n";
+
+    freeTree(root);
+    return 0;
+}

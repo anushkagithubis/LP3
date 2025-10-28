@@ -1,0 +1,106 @@
+public class NQueensSolver {
+
+    static List<String[][]> solutions = new ArrayList<>();
+    static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        int n = takeInput();
+        String[][] board = getBoard(n);
+        solve(board, 0, n);
+        System.out.println();
+        System.out.println("One of the solutions is: \n");
+        printSolution(n);
+        System.out.println();
+        System.out.println("Total number of solutions = " + solutions.size());
+    }
+
+    
+    public static int takeInput() {
+        int n = 0;
+        while (true) {
+            try {
+                System.out.print("Input size of chessboard? n = ");
+                n = Integer.parseInt(scanner.nextLine());
+                if (n <= 3) {
+                    System.out.println("Enter a value greater than or equal to 4");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid value entered. Enter again");
+            }
+        }
+        return n;
+    }
+
+    
+    public static String[][] getBoard(int n) {
+        String[][] board = new String[n][n];
+        for (int i = 0; i < n; i++) {
+            Arrays.fill(board[i], "x");
+        }
+        return board;
+    }
+
+    
+    public static void printSolution(int n) {
+        if (solutions.isEmpty()) {
+            System.out.println("No solutions found.");
+            return;
+        }
+        Random rand = new Random();
+        int idx = rand.nextInt(solutions.size());
+        String[][] solution = solutions.get(idx);
+        for (int i = 0; i < n; i++) {
+            System.out.println(String.join(" ", solution[i]));
+        }
+    }
+
+  
+    public static void solve(String[][] board, int col, int n) {
+        if (col >= n) {
+            return;
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (isSafe(board, i, col, n)) {
+                board[i][col] = "Q";
+                if (col == n - 1) {
+                    addSolution(board, n);
+                } else {
+                    solve(board, col + 1, n);
+                }
+                board[i][col] = "x";  
+            }
+        }
+    }
+
+    
+    public static boolean isSafe(String[][] board, int row, int col, int n) {
+        
+        for (int j = 0; j < col; j++) {
+            if (board[row][j].equals("Q")) return false;
+        }
+
+        
+        for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) {
+            if (board[i][j].equals("Q")) return false;
+        }
+
+        
+        for (int i = row, j = col; i < n && j >= 0; i++, j--) {
+            if (board[i][j].equals("Q")) return false;
+        }
+
+        return true;
+    }
+
+    
+    public static void addSolution(String[][] board, int n) {
+        String[][] savedBoard = new String[n][n];
+        for (int i = 0; i < n; i++) {
+            savedBoard[i] = Arrays.copyOf(board[i], n);
+        }
+        solutions.add(savedBoard);
+    }
+}
