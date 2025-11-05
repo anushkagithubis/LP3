@@ -1,113 +1,63 @@
-#include <iostream>
-#include <map>
-#include <string>
-#include <vector>
-#include <queue>
-#include <iomanip>
+import heapq
 
-using namespace std;
+# Node class
+class Node:
+    def __init__(self, ch, freq):
+        self.ch, self.freq = ch, freq
+        self.left = self.right = None
 
-struct Node {
-    char ch;
-    int freq;
-    Node *left, *right;
-    Node(char c, int f) : ch(c), freq(f), left(nullptr), right(nullptr) {}
-    Node(Node* l, Node* r) : ch('\0'), freq(l->freq + r->freq), left(l), right(r) {}
-};
+    def __lt__(self, other):
+        return self.freq < other.freq
 
-struct Compare {
-    bool operator()(Node* l, Node* r) {
-        return l->freq > r->freq;
-    }
-};
 
-void buildCodes(Node* root, string str, map<char, string> &huffmanCode) {
-    if (!root) return;
-    if (!root->left && !root->right) {
-        huffmanCode[root->ch] = str;
-    }
-    buildCodes(root->left, str + "0", huffmanCode);
-    buildCodes(root->right, str + "1", huffmanCode);
-}
+# Recursive code builder
+def build_codes(node, code, mapping):
+    if not node:
+        return
+    if not node.left and not node.right:
+        mapping[node.ch] = code
+    build_codes(node.left, code + "0", mapping)
+    build_codes(node.right, code + "1", mapping)
 
-void freeTree(Node* root) {
-    if (!root) return;
-    freeTree(root->left);
-    freeTree(root->right);
-    delete root;
-}
 
-int main() {
-    string input;
-    cout << "Enter a string: ";
-    getline(cin, input);
+def huffman_encoding(text):
+    # Step 1: Count character frequency
+    freq = {ch: text.count(ch) for ch in text if ch != " "}
+    print("\nCharacter Frequencies:", freq)
 
-   
-    map<char, int> freq;
-    for (char ch : input) {
-        if (ch != ' ') {
-            freq[ch]++;
-        }
-    }
-    cout << "\nCharacter frequencies (excluding spaces):\n";
-    for (auto &p : freq) {
-        cout << p.first << " : " << p.second << " times\n";
-    }
+    # Step 2: Create min-heap
+    heap = [Node(ch, f) for ch, f in freq.items()]
+    heapq.heapify(heap)
 
-    
-    priority_queue<Node*, vector<Node*>, Compare> pq;
-    for (auto &p : freq) {
-        pq.push(new Node(p.first, p.second));
-    }
+    # Step 3: Build Huffman Tree
+    while len(heap) > 1:
+        left, right = heapq.heappop(heap), heapq.heappop(heap)
+        merged = Node(None, left.freq + right.freq)
+        merged.left, merged.right = left, right
+        heapq.heappush(heap, merged)
 
-    while (pq.size() > 1) {
-        Node* left = pq.top(); pq.pop();
-        Node* right = pq.top(); pq.pop();
-        Node* merged = new Node(left, right);
-        pq.push(merged);
-    }
-    Node* root = pq.top();
+    root = heap[0]
 
-    
-    map<char, string> huffmanCode;
-    buildCodes(root, "", huffmanCode);
+    # Step 4: Build Huffman codes
+    codes = {}
+    build_codes(root, "", codes)
+    print("Huffman Codes:", codes)
 
-    cout << "\nHuffman Codes:\n";
-    for (auto &p : huffmanCode) {
-        cout << p.first << " : " << p.second << "\n";
-    }
+    # Step 5: Encode and decode
+    encoded = "".join(codes[ch] for ch in text if ch != " ")
+    print("Encoded:", encoded)
 
-    
-    string encodedStr = "";
-    for (char ch : input) {
-        if (ch != ' ') {
-            encodedStr += huffmanCode[ch];
-        }
-    }
+    decoded, node = "", root
+    for bit in encoded:
+        node = node.left if bit == "0" else node.right
+        if not node.left and not node.right:
+            decoded += node.ch
+            node = root
 
-    
-    cout << "\nEncoded string (grouped 8 bits):\n";
-    for (size_t i = 0; i < encodedStr.length(); i++) {
-        cout << encodedStr[i];
-        if ((i + 1) % 8 == 0) cout << " ";
-    }
-    if (encodedStr.length() % 8 != 0) cout << "\n";
-   
-    cout << "\nDecoded string (no spaces):\n";
-    string decodedStr = "";
-    Node* curr = root;
-   
+    print("Decoded:", decoded)
 
- for (char bit : encodedStr) {
-        curr = (bit == '0') ? curr->left : curr->right;
-        if (!curr->left && !curr->right) {
-            decodedStr += curr->ch;
-            curr = root;
-        }
-    }
 
-    cout << decodedStr << "\n";
+# Main
+text = input("Enter a string: ")
+huffman_encoding(text)
 
-    freeTree(root);
-    return 0;
-}
