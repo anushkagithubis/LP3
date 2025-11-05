@@ -1,70 +1,55 @@
-from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
-df = pd.read_csv(r"C:\Users\karti\Downloads\Churn_Modelling.csv")
-df.head()
-
-#Drop irrelevant columns
-dfdf.drop(["RowNumber", "CustomerId", "Surname"], axis=1)
-#Encode categorical columns
-le_geo LabelEncoder()
-le_gender LabelEncoder()
-df ["Geography"] le geo.fit transform(df["Geography"])
-df ["Gender"] = le_gender.fit_transform(df["Gender"])
-#Features (X) and Target (y)
-X= df.drop("Exited", axis=1)
-y = df ["Exited"]
-#Train-test split
-X_train, X_test, y_train, y_test train_test_split(X, y.
-test_size=0.2, random_state=42, stratify=y)
-
 !pip install "numpy<2" pandas scikit-learn matplotlib seaborn
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-sport seaborn as sns
-from sklearn.model selection import train test split from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.neural network inport MLPClassifier
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
-df pd.read_csv(r"C:\Users\karti\Downloads\Churn_Modelling.csv")
+
+df=pd.read_csv(r"C:\Users\Asus\Downloads\Churn_Modelling.csv")
 df.head()
 
-//Drop irrelevant colums
-df=df.drop(["RowNumber", "CustomerId", "Surname"], axis=1)
+df = df.drop(columns=["RowNumber", "CustomerId", "Surname"], errors='ignore')
+df
 
-#Encode categorical colums
-le geo Label Encoder()
-le_gender LabelEncoder()
-df ["Geography"]le_geo.fit_transform(df] "Geography"]) df["Gender"]=le_gender.fit_transform(df["Gender"])
+# Create LabelEncoder objects
+le_geo = LabelEncoder()
+le_gender = LabelEncoder()
+
+# Encode categorical columns
+df["Geography"] = le_geo.fit_transform(df["Geography"])
+df["Gender"] = le_gender.fit_transform(df["Gender"])
+df["Geography"]
+df["Gender"]
 
 #Features (X) and Target (y)
 X=df.drop("Exited", axis=1) 
 y=df["Exited"]
 
-#Train-test split
-X train, X test, y train, y test train test_split(X, y, test_size=0.2, random state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.2, random_state=42)
 
-#Normalize features
-scaler StandardScaler()
-X_train=scaler.fit transform(X train) 
+scaler=StandardScaler()
+X_train=scaler.fit_transform(X_train) 
 X_test=scaler.transform(X_test)
 
-#Build Neural Network Classifier
-mlp=MLPClassifier(hidden_layer_sizes=(32,16), activation="relu", solver "adam", max_iter-300, random_state=42) 
+# Build Neural Network Classifier
+mlp = MLPClassifier(hidden_layer_sizes=(32, 16), activation="relu", solver="adam", max_iter=300, random_state=42)
 mlp.fit(X_train, y_train)
 
-y_pred =mlp.predict(X_test)
+# Predict on test data
+y_pred = mlp.predict(X_test)
 
-//Accuracy
 acc=accuracy_score(y_test, y_pred)
 print("Accuracy:", acc)
 
-//Confusion Matrix
-cm confusion_matrix(y_test, y_pred)
+cm=confusion_matrix(y_test, y_pred)
 print("Confusion Matrix:\n", cm)
 
-//Optional: Heatmap
-sns.heatmap(cm, annot True, fmt="d", cmap="Blues")
+sns.heatmap(cm,annot=True, fmt="d", cmap="Blues")
 plt.xlabel("Predicted")
 plt.ylabel("Actual")
 plt.show()
+
