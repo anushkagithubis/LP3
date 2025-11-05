@@ -34,3 +34,33 @@ cm confusion_matrix(y_test, y_pred)
 mat ConfusionMatrixDisplay(confusion_matrix = cm)
 mat.plot()
 plt.show()
+
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+
+error_rate = 1 - accuracy
+print("Error Rate:", error_rate)
+
+precision = precision_score(y_test, y_pred)
+print("Precision:", precision)
+
+recall = recall_score(y_test, y_pred)
+print("Recall:", recall)
+
+# Import SVC
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Step 1: Create SVM model
+svm_model = SVC(gamma='auto')
+
+# Step 2: Train (fit) the model
+svm_model.fit(X_train, y_train)
+
+# Step 3: Predict on test data
+y_pred = svm_model.predict(X_test)
+
+# Step 4: Evaluate performance
+print("✅ SVM Classification Results:")
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
